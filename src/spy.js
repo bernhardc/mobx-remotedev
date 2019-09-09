@@ -44,7 +44,7 @@ function schedule(name, action) {
 
 function send() {
   if (scheduled.length) {
-    const toSend = scheduled.pop();
+    const toSend = scheduled.shift(); // TODO: CHANGED
     if (toSend) toSend();
   }
 }
@@ -73,7 +73,12 @@ export default function spy(store, config) {
         return;
       }
       if (change.type === 'action') {
-        const action = createAction(change.name);
+      	const objectName = change.object && // TODO: CHANGED
+			(getName(change.object).replace(/@[0-9]+$/, "") || change.object.constructor.name);
+      	const actionName = objectName ? `${objectName}.${change.name}` : change.name;  // TODO: CHANGED
+
+        const action = createAction(actionName);
+ 
         if (change.arguments && change.arguments.length) action.arguments = change.arguments;
         if (!onlyActions[objName]) {
           schedule(objName, { ...action, type: `┏ ${action.type}` });
